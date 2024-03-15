@@ -77,6 +77,11 @@ vim.opt.colorcolumn = '100'
 vim.opt.cursorcolumn = true
 vim.opt.foldmethod = 'marker'
 
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 4
+vim.opt.expandtab = true
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
