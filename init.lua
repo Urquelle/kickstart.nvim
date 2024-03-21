@@ -207,8 +207,10 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 -- Meine Tastenkombinationen
 vim.keymap.set('i', 'jk', '<Esc>', { desc = 'Eingabemodus verlassen', remap = true })
-vim.keymap.set('n', '<C-s>', ':w<CR>', { desc = 'Datei speichern' })
-vim.keymap.set('n', '<leader>qq', ':q<CR>', { desc = 'Datei speichern' })
+vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Datei speichern' })
+vim.keymap.set('n', '<leader>qq', '<Cmd>qa<CR>', { desc = 'Datei speichern' })
+vim.keymap.set({ 'n', 'x' }, 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+vim.keymap.set({ 'n', 'x' }, 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
