@@ -84,6 +84,10 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+-- NOTE: damit die variable vim definiert ist, und der fehler
+--       'Undefined global vim' nur an dieser stelle angezeigt wird!
+local vim = vim
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -91,7 +95,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -159,7 +163,7 @@ vim.opt.guifont = 'Inconsolata Nerd Font Mono:h11'
 
 -- Einrückung einstellen
 vim.opt.cino = 'l1b1'
-vim.opt.colorcolumn = '100'
+vim.opt.colorcolumn = '120'
 vim.opt.cursorcolumn = true
 vim.opt.foldmethod = 'marker'
 
@@ -176,11 +180,11 @@ vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Zu vorheriger [D]iagnostik Meldung springen' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Zu nächster [D]iagnostik Meldung springen' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Diagnostik [E]rror Meldungen anzeigen' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Diagnostik [Q]uickfix List öffnen' })
-vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>', { desc = 'Öffne/Schließe Neotree' })
+vim.keymap.set('n', 'öd', vim.diagnostic.goto_prev, { desc = 'Vorherige Meldung' })
+vim.keymap.set('n', 'äd', vim.diagnostic.goto_next, { desc = 'Nächste Meldung' })
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Fehlermeldungen anzeigen' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Schnellfix Liste' })
+vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>', { desc = 'Neotree' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -200,17 +204,22 @@ vim.keymap.set('n', '<down>', '<cmd>echo "Nutze j für Bewegung!!"<CR>')
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Zum linken Fenster bewegen' })
+vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Zum rechten Fenster bewegen' })
+vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Zum unteren Fenster bewegen' })
+vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Zum oberen Fenster bewegen' })
 
 -- Meine Tastenkombinationen
-vim.keymap.set('i', 'jk', '<Esc>', { desc = 'Eingabemodus verlassen', remap = true })
+vim.keymap.set({ 'i' }, 'jk', '<Esc>', { desc = 'Eingabemodus verlassen', remap = true })
 vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Datei speichern' })
-vim.keymap.set('n', '<leader>qq', '<Cmd>qa<CR>', { desc = 'Datei speichern' })
+vim.keymap.set({ 'n' }, '<leader>qq', '<Cmd>qa<CR>', { desc = 'Datei speichern' })
 vim.keymap.set({ 'n', 'x' }, 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 vim.keymap.set({ 'n', 'x' }, 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+
+-- Reiter
+vim.keymap.set({ 'n' }, '<leader><tab><tab>', '<cmd>tabnew<cr>', { desc = 'Neuer Reiter' })
+vim.keymap.set({ 'n' }, '<leader><tab>l', '<cmd>tabnext<cr>', { desc = 'Nächster Reiter' })
+vim.keymap.set({ 'n' }, '<leader><tab>h', '<cmd>tabprevious<cr>', { desc = 'Vorheriger Reiter' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -303,11 +312,11 @@ require('lazy').setup({
 
       -- Document existing key chains
       require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]okument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]uche', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+        --  ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
+        --  ['<leader>d'] = { name = '[D]okument', _ = 'which_key_ignore' },
+        --  ['<leader>r'] = { name = '[U]mbenennen', _ = 'which_key_ignore' },
+        ['<leader>s'] = { name = '[s]uche', _ = 'which_key_ignore' },
+        --  ['<leader>w'] = { name = '[A]rbeitsplatz', _ = 'which_key_ignore' },
       }
     end,
   },
@@ -373,11 +382,16 @@ require('lazy').setup({
           file_ignore_patterns = {
             'node_modules',
             '.git',
+            '.jj',
+            'obj',
+            'bin',
             '.vs',
             'build/*',
           },
           mappings = {
-            i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+            i = {
+              ['<c-enter>'] = 'to_fuzzy_refine',
+            },
           },
         },
         -- pickers = {}
@@ -394,16 +408,17 @@ require('lazy').setup({
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
-      vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]uche [H]ilfe' })
-      vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]uche [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]uche [F]iles' })
-      vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]uche [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]uche aktuelles [W]ort' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]uche by [G]rep' })
-      vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]uche [D]iagnostics' })
-      vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]uche [R]esume' })
-      vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]uche Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[s]uche [h]ilfe' })
+      vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[s]uche [k]eymaps' })
+      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[s]uche [f]iles' })
+      vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[s]uche [s]elect Telescope' })
+      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[s]uche aktuelles [w]ort' })
+      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[s]uche by [g]rep' })
+      vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[s]uche [d]iagnostics' })
+      vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[s]uche [r]esume' })
+      vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[s]uche zuletzt benutzt ("." for repeat)' })
+      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] offene dateien' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -569,16 +584,15 @@ require('lazy').setup({
         clangd = {},
         -- gopls = {},
         -- pyright = {},
-        -- rust_analyzer = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
-        -- tsserver = {},
-        --
-
+        tsserver = {},
+        csharp_ls = {},
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -647,7 +661,7 @@ require('lazy').setup({
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
+        javascript = { { 'prettierd', 'prettier' } },
       },
     },
   },
@@ -840,70 +854,6 @@ require('lazy').setup({
       --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
       --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-    end,
-  },
-
-  {
-    'nvimdev/dashboard-nvim',
-    event = 'VimEnter',
-    opts = function()
-      local logo = [[
-           ██╗      █████╗ ███████╗██╗   ██╗██╗   ██╗██╗███╗   ███╗          Z
-           ██║     ██╔══██╗╚══███╔╝╚██╗ ██╔╝██║   ██║██║████╗ ████║      Z    
-           ██║     ███████║  ███╔╝  ╚████╔╝ ██║   ██║██║██╔████╔██║   z       
-           ██║     ██╔══██║ ███╔╝    ╚██╔╝  ╚██╗ ██╔╝██║██║╚██╔╝██║ z         
-           ███████╗██║  ██║███████╗   ██║    ╚████╔╝ ██║██║ ╚═╝ ██║           
-           ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝     ╚═══╝  ╚═╝╚═╝     ╚═╝           
-      ]]
-
-      logo = string.rep('\n', 8) .. logo .. '\n\n'
-
-      local opts = {
-        theme = 'doom',
-        hide = {
-          -- this is taken care of by lualine
-          -- enabling this messes up the actual laststatus setting after loading a file
-          statusline = false,
-        },
-        config = {
-          header = vim.split(logo, '\n'),
-          -- stylua: ignore
-          center = {
-            { action = 'Telescope find_files', desc = ' Datei Finden', icon = ' ', key = 'f', },
-            { action = 'ene | startinsert', desc = ' Datei Neu', icon = ' ', key = 'n', },
-            { action = 'Telescope oldfiles', desc = ' Kürzlich Verwendet', icon = ' ', key = 'r', },
-            { action = 'Telescope live_grep', desc = ' Text Finden', icon = ' ', key = 'g', },
-            { action = [[lua require("lazyvim.util").telescope.config_files()()]], desc = ' Konfig', icon = ' ', key = 'c', },
-            { action = 'lua require("persistence").load()', desc = ' Sitzung Fortführen', icon = ' ', key = 's', },
-            { action = 'LazyExtras', desc = ' Lazy Extras', icon = ' ', key = 'x', },
-            { action = 'Lazy', desc = ' Lazy', icon = '󰒲 ', key = 'l', },
-            { action = 'qa', desc = ' Beenden', icon = ' ', key = 'q', },
-          },
-          footer = function()
-            local stats = require('lazy').stats()
-            local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
-            return { '⚡ Neovim loaded ' .. stats.loaded .. '/' .. stats.count .. ' plugins in ' .. ms .. 'ms' }
-          end,
-        },
-      }
-
-      for _, button in ipairs(opts.config.center) do
-        button.desc = button.desc .. string.rep(' ', 43 - #button.desc)
-        button.key_format = '  %s'
-      end
-
-      -- close Lazy and re-open when the dashboard is ready
-      if vim.o.filetype == 'lazy' then
-        vim.cmd.close()
-        vim.api.nvim_create_autocmd('User', {
-          pattern = 'DashboardLoaded',
-          callback = function()
-            require('lazy').show()
-          end,
-        })
-      end
-
-      return opts
     end,
   },
 
@@ -1244,6 +1194,14 @@ require('lazy').setup({
   },
 
   {
+    'benfowler/telescope-luasnip.nvim',
+    dependencies = {
+      'L3MON4D3/LuaSnip',
+      'nvim-telescope/telescope.nvim',
+    },
+  },
+
+  {
     'folke/todo-comments.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
@@ -1276,6 +1234,25 @@ require('lazy').setup({
     },
   },
 
+  -- sql
+  {
+    'kristijanhusak/vim-dadbod-ui',
+    dependencies = {
+      { 'tpope/vim-dadbod', lazy = true },
+      { 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' }, lazy = true },
+    },
+    cmd = {
+      'DBUI',
+      'DBUIToggle',
+      'DBUIAddConnection',
+      'DBUIFindBuffer',
+    },
+    init = function()
+      -- Your DBUI configuration
+      vim.g.db_ui_use_nerd_fonts = 1
+    end,
+  },
+
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -1285,16 +1262,16 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.lint',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -1314,6 +1291,16 @@ require('lazy').setup({
       task = '📌',
       lazy = '💤 ',
     },
+  },
+})
+
+require('harpoon'):setup()
+require('telescope').load_extension 'luasnip'
+
+require('cmp').setup.filetype({ 'sql' }, {
+  sources = {
+    { name = 'vim-dadbod-completion' },
+    { name = 'buffer' },
   },
 })
 
