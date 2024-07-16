@@ -165,7 +165,9 @@ vim.opt.guifont = 'Inconsolata Nerd Font Mono:h12'
 vim.opt.cino = 'l1b1'
 vim.opt.colorcolumn = '120'
 vim.opt.cursorcolumn = true
+
 vim.opt.foldmethod = 'marker'
+vim.opt.foldmarker = '{{{,}}}'
 
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
@@ -184,7 +186,7 @@ vim.keymap.set('n', 'öd', vim.diagnostic.goto_prev, { desc = 'Vorherige Meldung
 vim.keymap.set('n', 'äd', vim.diagnostic.goto_next, { desc = 'Nächste Meldung' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Fehlermeldungen anzeigen' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Schnellfix Liste' })
-vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>', { desc = 'Neotree' })
+vim.keymap.set('n', '<leader>d', ':Neotree toggle<CR>', { desc = 'Neotree' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -774,7 +776,7 @@ require('lazy').setup({
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          ['<C-z>'] = cmp.mapping.confirm { select = true },
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
@@ -1010,12 +1012,12 @@ require('lazy').setup({
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
-    -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-    --    This is the easiest way to modularize your config.
-    --
-    --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-    --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-    { import = 'custom.plugins' },
+  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
+  --    This is the easiest way to modularize your config.
+  --
+  --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
+  --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
+  { import = 'custom.plugins' },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -1038,7 +1040,6 @@ require('lazy').setup({
   },
 })
 
-require('harpoon'):setup()
 require('telescope').load_extension 'luasnip'
 
 require('cmp').setup.filetype({ 'sql' }, {
@@ -1047,6 +1048,62 @@ require('cmp').setup.filetype({ 'sql' }, {
     { name = 'buffer' },
   },
 })
+
+-- Harpoon
+local harpoon = require 'harpoon'
+harpoon:setup {}
+
+vim.keymap.set('n', '<leader>a', function()
+  harpoon:list():add()
+end)
+vim.keymap.set('n', '<C-e>', function()
+  harpoon.ui:toggle_quick_menu(harpoon:list())
+end)
+
+vim.keymap.set('n', '<C-z>', function()
+  harpoon:list():select(1)
+end)
+vim.keymap.set('n', '<C-u>', function()
+  harpoon:list():select(2)
+end)
+vim.keymap.set('n', '<C-i>', function()
+  harpoon:list():select(3)
+end)
+vim.keymap.set('n', '<C-o>', function()
+  harpoon:list():select(4)
+end)
+
+-- Toggle previous & next buffers stored within Harpoon list
+vim.keymap.set('n', '<C-S-P>', function()
+  harpoon:list():prev()
+end)
+vim.keymap.set('n', '<C-S-N>', function()
+  harpoon:list():next()
+end)
+
+-- basic telescope configuration
+local conf = require('telescope.config').values
+local function toggle_telescope(harpoon_files)
+  local file_paths = {}
+  for _, item in ipairs(harpoon_files.items) do
+    table.insert(file_paths, item.value)
+  end
+
+  require('telescope.pickers')
+    .new({}, {
+      prompt_title = 'Harpoon',
+      finder = require('telescope.finders').new_table {
+        results = file_paths,
+      },
+      previewer = conf.file_previewer {},
+      sorter = conf.generic_sorter {},
+    })
+    :find()
+end
+
+vim.keymap.set('n', '<C-e>', function()
+  toggle_telescope(harpoon:list())
+end, { desc = 'Open harpoon window' })
 
 if vim.g.neovide then
   vim.keymap.set({ 'n', 'v' }, '<C-+>', ':lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + 0.1<CR>')
