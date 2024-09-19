@@ -99,7 +99,7 @@ vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
---  NOTE: You can change these options as you wish!
+-- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
 -- Make line numbers default
@@ -186,7 +186,6 @@ vim.keymap.set('n', 'öd', vim.diagnostic.goto_prev, { desc = 'Vorherige Meldung
 vim.keymap.set('n', 'äd', vim.diagnostic.goto_next, { desc = 'Nächste Meldung' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Fehlermeldungen anzeigen' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Schnellfix Liste' })
-vim.keymap.set('n', '<leader>d', ':Neotree toggle<CR>', { desc = 'Neotree' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -242,7 +241,10 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
-  vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+  local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+  if vim.v.shell_error ~= 0 then
+    error('Error cloning lazy.nvim:\n' .. out)
+  end
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
@@ -313,19 +315,15 @@ require('lazy').setup({
       require('which-key').setup()
 
       -- Document existing key chains
-      require('which-key').register {
-        --  ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        --  ['<leader>d'] = { name = '[D]okument', _ = 'which_key_ignore' },
-        --  ['<leader>r'] = { name = '[U]mbenennen', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[s]uche', _ = 'which_key_ignore' },
-        --  ['<leader>w'] = { name = '[A]rbeitsplatz', _ = 'which_key_ignore' },
-        ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
-        ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
+      require('which-key').add {
+        { '<leader>c', group = '[C]ode' },
+        { '<leader>d', group = '[D]ocument' },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>w', group = '[W]orkspace' },
+        { '<leader>t', group = '[T]oggle' },
+        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       }
-      -- visual mode
-      require('which-key').register({
-        ['<leader>h'] = { 'Git [H]unk' },
-      }, { mode = 'v' })
     end,
   },
 
@@ -391,12 +389,14 @@ require('lazy').setup({
             'node_modules',
             '.git',
             '.jj',
-            '*.exe',
-            '*.obj',
+            '%.exe',
+            '%.obj',
+            '%.pdb',
             'obj',
             'bin',
             '.vs',
-            'build/*',
+            '^build/',
+            '^e/',
           },
           mappings = {
             i = {
@@ -612,7 +612,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        clangd = {},
+        -- clangd = {},
         -- gopls = {},
         -- pyright = {},
         rust_analyzer = {},
@@ -944,10 +944,13 @@ require('lazy').setup({
     },
   },
 
+  -- Highlight todo, notes, etc in comments
   {
     'folke/todo-comments.nvim',
+    event = 'VimEnter',
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
+      signs = false,
       keywords = {
         FIX = { icon = ' ', color = 'error', alt = { 'FIXME', 'BUG', 'FIXIT', 'ISSUE', 'FEHLER' } },
         TODO = { icon = ' ', color = 'info', alt = { 'AUFGABE', 'ERLEDIGEN' } },
@@ -1048,62 +1051,6 @@ require('cmp').setup.filetype({ 'sql' }, {
     { name = 'buffer' },
   },
 })
-
--- Harpoon
-local harpoon = require 'harpoon'
-harpoon:setup {}
-
-vim.keymap.set('n', '<leader>a', function()
-  harpoon:list():add()
-end)
-vim.keymap.set('n', '<C-e>', function()
-  harpoon.ui:toggle_quick_menu(harpoon:list())
-end)
-
-vim.keymap.set('n', '<C-z>', function()
-  harpoon:list():select(1)
-end)
-vim.keymap.set('n', '<C-u>', function()
-  harpoon:list():select(2)
-end)
-vim.keymap.set('n', '<C-i>', function()
-  harpoon:list():select(3)
-end)
-vim.keymap.set('n', '<C-o>', function()
-  harpoon:list():select(4)
-end)
-
--- Toggle previous & next buffers stored within Harpoon list
-vim.keymap.set('n', '<C-S-P>', function()
-  harpoon:list():prev()
-end)
-vim.keymap.set('n', '<C-S-N>', function()
-  harpoon:list():next()
-end)
-
--- basic telescope configuration
-local conf = require('telescope.config').values
-local function toggle_telescope(harpoon_files)
-  local file_paths = {}
-  for _, item in ipairs(harpoon_files.items) do
-    table.insert(file_paths, item.value)
-  end
-
-  require('telescope.pickers')
-    .new({}, {
-      prompt_title = 'Harpoon',
-      finder = require('telescope.finders').new_table {
-        results = file_paths,
-      },
-      previewer = conf.file_previewer {},
-      sorter = conf.generic_sorter {},
-    })
-    :find()
-end
-
-vim.keymap.set('n', '<C-e>', function()
-  toggle_telescope(harpoon:list())
-end, { desc = 'Open harpoon window' })
 
 if vim.g.neovide then
   vim.keymap.set({ 'n', 'v' }, '<C-+>', ':lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + 0.1<CR>')
