@@ -162,10 +162,13 @@ vim.opt.cursorline = true
 vim.opt.scrolloff = 10
 
 -- Gepatchte Version von Inconsolate setzen. Runtergeladen von https://www.nerdfonts.com
-vim.opt.guifont = 'Inconsolata Nerd Font Mono:h12'
+-- vim.opt.guifont = 'Inconsolata Nerd Font Mono:h12'
+vim.opt.guifont = 'Fira Code Retina:h10'
 
 -- Einrückung einstellen
-vim.opt.cino = 'l1b1'
+vim.opt.cindent = true
+-- vim.opt.cino = 'l1b1'
+vim.opt.cino = ':0,p0,t0,+0,(0,W0'
 vim.opt.colorcolumn = '120'
 vim.opt.cursorcolumn = true
 
@@ -185,10 +188,7 @@ vim.opt.expandtab = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', 'öd', vim.diagnostic.goto_prev, { desc = 'Vorherige Meldung' })
-vim.keymap.set('n', 'äd', vim.diagnostic.goto_next, { desc = 'Nächste Meldung' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Fehlermeldungen anzeigen' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Schnellfix Liste' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -199,10 +199,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Schnellfix
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
-vim.keymap.set('n', '<left>', '<cmd>echo "Nutze h für Bewegung!!"<CR>')
-vim.keymap.set('n', '<right>', '<cmd>echo "Nutze l für Bewegung!!"<CR>')
-vim.keymap.set('n', '<up>', '<cmd>echo "Nutze k für Bewegung!!"<CR>')
-vim.keymap.set('n', '<down>', '<cmd>echo "Nutze j für Bewegung!!"<CR>')
+-- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+-- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+-- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+-- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -348,8 +348,8 @@ require('lazy').setup({
       },
 
       -- Document existing key chains
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
+      spec = {
+        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -357,7 +357,7 @@ require('lazy').setup({
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
-      -- visual mode
+    },
   },
 
   -- NOTE: Plugins can specify dependencies.
@@ -417,26 +417,11 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        defaults = {
-          file_ignore_patterns = {
-            'node_modules',
-            '.git',
-            '.jj',
-            '%.exe',
-            '%.obj',
-            '%.pdb',
-            'obj',
-            'bin',
-            '.vs',
-            '^build/',
-            '^e/',
-          },
-          mappings = {
-            i = {
-              ['<c-enter>'] = 'to_fuzzy_refine',
-            },
-          },
-        },
+        -- defaults = {
+        --   mappings = {
+        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+        --   },
+        -- },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -659,7 +644,7 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         -- pyright = {},
-        rust_analyzer = {},
+        -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -749,13 +734,11 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- cpp = { 'clang-format' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
-        -- javascript = { { "prettierd", "prettier" } },
       },
     },
   },
@@ -894,6 +877,33 @@ require('lazy').setup({
     end,
   },
 
+  -- Highlight todo, notes, etc in comments
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = {
+      signs = false,
+      keywords = {
+        FIX = { icon = ' ', color = 'error', alt = { 'FIXME', 'BUG', 'FIXIT', 'ISSUE', 'FEHLER' } },
+        TODO = { icon = ' ', color = 'info', alt = { 'AUFGABE', 'ERLEDIGEN' } },
+        HACK = { icon = ' ', color = 'warning', alt = { 'KRÜCKE' } },
+        WARN = { icon = ' ', color = 'warning', alt = { 'WARNING', 'ACHTUNG', 'XXX' } },
+        PERF = { icon = ' ', alt = { 'OPTIM', 'PERFORMANCE', 'OPTIMIZE' } },
+        NOTE = { icon = ' ', color = 'hint', alt = { 'INFO', 'NOTIZ' } },
+        TEST = { icon = '⏲ ', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
+      },
+    },
+  },
+
+  {
+    'benfowler/telescope-luasnip.nvim',
+    dependencies = {
+      'L3MON4D3/LuaSnip',
+      'nvim-telescope/telescope.nvim',
+    },
+  },
+
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -957,61 +967,6 @@ require('lazy').setup({
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
 
-  {
-    'folke/persistence.nvim',
-    event = 'BufReadPre', -- this will only start session saving when an actual file was opened
-    opts = {
-      -- add any custom options here
-    },
-  },
-
-  {
-    'nvim-lualine/lualine.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-  },
-
-  {
-    'folke/flash.nvim',
-    event = 'VeryLazy',
-    ---@type Flash.Config
-    opts = {},
-    -- stylua: ignore
-    keys = {
-      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
-      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
-      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
-    },
-  },
-
-  {
-    'benfowler/telescope-luasnip.nvim',
-    dependencies = {
-      'L3MON4D3/LuaSnip',
-      'nvim-telescope/telescope.nvim',
-    },
-  },
-
-  -- Highlight todo, notes, etc in comments
-  {
-    'folke/todo-comments.nvim',
-    event = 'VimEnter',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = {
-      signs = false,
-      keywords = {
-        FIX = { icon = ' ', color = 'error', alt = { 'FIXME', 'BUG', 'FIXIT', 'ISSUE', 'FEHLER' } },
-        TODO = { icon = ' ', color = 'info', alt = { 'AUFGABE', 'ERLEDIGEN' } },
-        HACK = { icon = ' ', color = 'warning', alt = { 'KRÜCKE' } },
-        WARN = { icon = ' ', color = 'warning', alt = { 'WARNING', 'ACHTUNG', 'XXX' } },
-        PERF = { icon = ' ', alt = { 'OPTIM', 'PERFORMANCE', 'OPTIMIZE' } },
-        NOTE = { icon = ' ', color = 'hint', alt = { 'INFO', 'NOTIZ' } },
-        TEST = { icon = '⏲ ', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
-      },
-    },
-  },
-
   -- lazy.nvim
   {
     'folke/noice.nvim',
@@ -1027,25 +982,6 @@ require('lazy').setup({
       --   If not available, we use `mini` as the fallback
       'rcarriga/nvim-notify',
     },
-  },
-
-  -- sql
-  {
-    'kristijanhusak/vim-dadbod-ui',
-    dependencies = {
-      { 'tpope/vim-dadbod', lazy = true },
-      { 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' }, lazy = true },
-    },
-    cmd = {
-      'DBUI',
-      'DBUIToggle',
-      'DBUIAddConnection',
-      'DBUIFindBuffer',
-    },
-    init = function()
-      -- Your DBUI configuration
-      vim.g.db_ui_use_nerd_fonts = 1
-    end,
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
