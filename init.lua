@@ -165,10 +165,6 @@ vim.opt.scrolloff = 10
 -- vim.opt.guifont = 'Inconsolata Nerd Font Mono:h12'
 vim.opt.guifont = 'Fira Code Retina:h10'
 
--- Einrückung einstellen
-vim.opt.cindent = true
--- vim.opt.cino = 'l1b1'
-vim.opt.cino = ':0,p0,t0,+0,(0,W0'
 vim.opt.colorcolumn = '120'
 vim.opt.cursorcolumn = true
 
@@ -419,11 +415,12 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          file_ignore_patterns = { '%.exe', '%.pdb', '%.obj' },
+          -- mappings = {
+          --   i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+          -- },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
