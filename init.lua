@@ -163,7 +163,7 @@ vim.opt.scrolloff = 10
 
 -- Gepatchte Version von Inconsolate setzen. Runtergeladen von https://www.nerdfonts.com
 -- vim.opt.guifont = 'Inconsolata Nerd Font Mono:h12'
-vim.opt.guifont = 'Fira Code Retina:h10'
+vim.opt.guifont = 'Fira Code Retina:h12'
 
 vim.opt.colorcolumn = '120'
 vim.opt.cursorcolumn = true
@@ -286,6 +286,8 @@ require('lazy').setup({
       },
     },
   },
+
+  { 'ryanoasis/vim-devicons' },
 
   { 'tpope/vim-fugitive' },
 
@@ -649,7 +651,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
